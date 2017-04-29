@@ -2,33 +2,30 @@
 <!-- mvn org.apache.tomcat.maven:tomcat7-maven-plugin:2.2:run -Dmaven.tomcat.port=9090 -->
 <html>
 <head>
-	<meta charset="utf-8">
+	<%@page contentType="text/html" pageEncoding="UTF-8"%>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<title>Calculo de IMC</title>
-	<script src="js/calculoMostrarImc.js"></script>
-	<link rel="stylesheet" type="text/css" href="css/estiloCalculoimc.css">
+	<style type="text/css">
+	</style>
 </head>
 <body>
-	<div class ="row-fluid">
-		<!--Informa alerta da msg com base no seu imc-->
-		<div class="col-md-4 col-md-offset-4" id="alertaIMC"></div>
-			
+	<div class ="row-fluid">		
 		<div class="col-md-4 col-md-offset-4" id="painel-meio">
-		    <div class="panel panel-default">
+		    <div class="panel panel-default" style="margin-top: 84px;">
 		    	<div class="panel-heading"> 
 		    		<h1>Calculo IMC</h1>                               
 		        </div>
 		        <div class="panel-body">
-		     		<div class="col-xs-2">
-			        	<h3><small>Peso</small></h3>
+		     		<div class="col-xs-2" style="margin-top: -15px;">
+			        	<h3><small>Peso(kg)</small></h3>
 			        	<h3><small>Altura</small></h3>	        	 
 			        </div>
 			        <form>
 				        <div class="col-xs-8"> 
-				        	<input class="form-control" type="text" name="peso" value="10"  placeholder="Peso" id= "peso" autofocus="">
-				        	<input class="form-control" type="text" name="altura" value="11" placeholder="Altura" id = "altura">
+				        	<input class="form-control" type="text" name="peso"  placeholder="Peso" id= "peso" autofocus="" style="margin-bottom: 10px;">
+				        	<input class="form-control" type="text" name="altura"  placeholder="Altura ex: 1,8" id = "altura" style="margin-bottom: 10px;">
 
-				        	<div id="div-radio">
+				        	<div id="div-radio" style="margin-bottom: 10px;">
 				        		<label class="radio-inline">
 	  								<input type="radio" name="genderOption" value="M"> M
 								</label>
@@ -37,35 +34,65 @@
 								</label>
 				        	</div>
 				   			
-				        	<div class= "col-xs-6">
-				        		<button type="submit" class="btn btn-primary" name="btn-calc" value="calc">Calcular</button>
-				        	</div>
+				        	
 
-				        	<div class= "col-xs-6">
-				        		<button type="submit" class="btn btn-danger" name="btn-clean" value="clean">Limpar</button>
+				      	</div>
+				      	<div class= "col-xs-12">
+				        		<button type="submit" class="btn btn-primary btn-lg btn-block" name="btn-calc" value="calc">Calcular</button>
 				        	</div>
-				        </div>
 			        </form>
-			       	<div class="col-xs-2">
-			       	<%	
-			       		// Float peso =Float.parseFloat(request.getParameter("peso").replaceAll(",", "."));
-			       		// Float altura = Float.parseFloat(request.getParameter("altura").replaceAll(",", "."));
-			       		 
-			       		
-			       		String imc="";
-			       		String resultado="";
-			       		resultado = (imc != "")? imc : "Deu\nRuim";
-						
-					%>
-
-			      	  <h1 id="resultado" value="<%= imc %>">
-			      	  <%= resultado %>			     		
-			      	  </h1>
-			       	</div>
-
 		        </div>
 		    </div>
 		</div>
+	</div>
+	<div class="col-md-4 col-md-offset-4" id =" resultado">
+		  <%	
+			 try{
+	    String peso = request.getParameter("peso");
+	    String altura = request.getParameter("altura");
+	    String resultado="";
+	    String genero = request.getParameter("genderOption");
+
+	 	String msg ="";
+	    altura = altura.replace(",", ".");
+	    peso = peso.replace(",", ".");
+
+	    if (altura != null && peso != null && genero != null){             
+	        double imc = Double.parseDouble(peso) / (Double.parseDouble(altura) * Double.parseDouble(altura));
+	       	
+
+	        if((imc < 19.1 && genero.equals("F"))|| (imc <20.7 && genero.equals("F"))){
+
+				msg ="<div class= 'alert alert-warning'>"+ "Você é tão magro que vai deixar de existir"+"</div>";
+			
+			}else if((imc >= 19.1 && imc < 25.8 && genero.equals("F"))|| (imc >= 20.7 && imc <26.4 && genero.equals("M"))){
+				
+				msg ="<div class= 'alert alert-success'>" +"Parabens! Você é normal!" +"</div>";
+
+			}else if((imc >= 25.8 && imc < 27.3 && genero.equals("F"))|| (imc >= 26.4 && imc <27.8 && genero.equals("M"))){
+			
+				msg = "<div class= 'alert alert-warning'>" + "Você esta acima do peso." +"</div>";
+
+			}else if((imc >= 27.3 && imc < 32.3 && genero.equals("F"))|| (imc >= 27.8 && imc < 31.1 && genero.equals("M"))){
+				
+				msg = "<div class= 'alert alert-warning'>" + "Eee Gordão. Já experimentou uma salada?"+ "</div>";
+
+			}else if((imc > 32.3 && genero.equals("F")) || (imc> 31.1 && genero.equals("M"))){
+				
+				msg = "<div class= 'alert alert-danger'>" + "Meu Deus! Você vai morrer" +"</div>";
+
+			}else{
+			
+				msg = "VAAAi";
+			}
+			System.out.println("IMC:" + imc+"\nMsg: "+ msg );
+	       	resultado = "<h1 style='text-align: center;'>" + String.format("%.2f", imc) + "\n"+ msg+"</h1>" ;
+	       	out.println(resultado);
+	    }
+	}catch(Exception e){    
+	}
+		
+	%>
 	</div>
 </body>
 </html>
